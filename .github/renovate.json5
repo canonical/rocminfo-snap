@@ -1,0 +1,37 @@
+{
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	extends: [
+		"config:recommended",
+	],
+	"pre-commit": {
+		enabled: true,
+	},
+	customManagers: [
+		{
+			customType: "regex",
+			description: "Update ROCmInfo version in snapcraft.yaml",
+			managerFilePatterns: ["/(^|/)snapcraft\\.yaml$/"],
+			matchStrings: [
+				"version:\\s*['\"]?(?<currentValue>[^'\"\\s]+)['\"]?"
+			],
+			datasourceTemplate: "github-releases",
+			depNameTemplate: "ROCm/rocm-systems",
+			// Releases are tagged therock-<semver> (e.g. therock-1.7.0)
+			// The patch portion of the version is not always present.
+			extractVersionTemplate: "^therock-(?<version>.*)$",
+			versioningTemplate: "semver-coerced",
+		},
+	],
+	packageRules: [
+		{
+			matchPackageNames: ["zizmorcore/zizmor-pre-commit", "ghcr.io/zizmorcore/zizmor"],
+			groupName: "zizmor",
+			groupSlug: "zizmor",
+		},
+		{
+			matchPackageNames: ["rhysd/actionlint"],
+			groupName: "actionlint",
+			groupSlug: "actionlint",
+		},
+	],
+}

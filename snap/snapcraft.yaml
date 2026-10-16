@@ -1,0 +1,83 @@
+name: rocminfo
+title: ROCmInfo
+license: NCSA
+version: "10.1"
+summary: ROCm Application for Reporting System Info
+description: |
+  NOTE: This is a wrapper of the official package, but it is not verified,
+  affiliated with, or supported by AMD.
+
+  rocminfo is a ROCm application that reports system information and enumerates
+  GPU agents available on a working ROCm stack.
+
+website: https://rocm.docs.amd.com/projects/rocminfo/en/latest/index.html
+contact: https://github.com/canonical/rocminfo-snap/issues
+issues: https://github.com/canonical/rocminfo-snap/issues
+source-code: https://github.com/ROCm/rocm-systems/tree/develop/projects/rocminfo
+
+base: core24
+grade: stable
+confinement: strict
+
+platforms:
+  amd64:
+
+plugs:
+  rocm:
+    interface: content
+    content: rocm-inference-10-0-2604
+    target: $SNAP/opt/rocm
+    default-provider: rocm-inference
+
+apps:
+  rocminfo:
+    command: opt/rocminfo/bin/rocminfo
+    environment:
+      LD_LIBRARY_PATH: $SNAP/opt/rocminfo/lib:$SNAP/opt/rocm/lib:$SNAP/opt/rocm/lib/llvm/lib:$SNAP/opt/rocm/lib/rocm_sysdeps/lib:$LD_LIBRARY_PATH
+      PATH: $SNAP/opt/rocminfo/bin:$SNAP/opt/rocm/bin:$SNAP/opt/rocm/lib/llvm/bin:$PATH
+      ROCM_PATH: $SNAP/opt/rocm
+      HIP_PATH: $SNAP/opt/rocm
+      HIP_DEVICE_LIB_PATH: $SNAP/opt/rocm/lib/llvm/amdgcn/bitcode
+    extensions: [gpu]
+    plugs:
+      - kernel-module-observe
+      - rocm
+  rocm-agent-enumerator:
+    command: opt/rocminfo/bin/rocm_agent_enumerator
+    environment:
+      LD_LIBRARY_PATH: $SNAP/opt/rocminfo/lib:$SNAP/opt/rocm/lib:$SNAP/opt/rocm/lib/llvm/lib:$SNAP/opt/rocm/lib/rocm_sysdeps/lib:$LD_LIBRARY_PATH
+      PATH: $SNAP/opt/rocminfo/bin:$SNAP/opt/rocm/bin:$SNAP/opt/rocm/lib/llvm/bin:$PATH
+      ROCM_PATH: $SNAP/opt/rocm
+      HIP_PATH: $SNAP/opt/rocm
+      HIP_DEVICE_LIB_PATH: $SNAP/opt/rocm/lib/llvm/amdgcn/bitcode
+    extensions: [gpu]
+    plugs:
+      - kernel-module-observe
+      - rocm
+
+parts:
+  rocminfo:
+    plugin: cmake
+    source: https://github.com/ROCm/rocm-systems
+    source-type: git
+    source-tag: therock-$SNAPCRAFT_PROJECT_VERSION
+    source-depth: 1
+    source-subdir: projects/rocminfo
+    build-snaps:
+      - rocm-inference/latest/stable
+    build-environment:
+      - ROCM_PATH: /snap/rocm-inference/current/opt/rocm
+      - HIP_PATH: $ROCM_PATH
+      - HIPCXX: $ROCM_PATH/lib/llvm/bin/clang++
+      - PATH: $ROCM_PATH/bin:$ROCM_PATH/lib/llvm/bin:$PATH
+      - LD_LIBRARY_PATH: $ROCM_PATH/lib:$ROCM_PATH/lib/llvm/lib:$ROCM_PATH/lib/rocm_sysdeps/lib:${LD_LIBRARY_PATH:-}
+    cmake-parameters:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DCMAKE_INSTALL_PREFIX=/opt/rocminfo
+      - -DCPACK_PACKAGING_INSTALL_PREFIX=/opt/rocminfo
+      - -DROCM_PATH=$ROCM_PATH
+      - -DROCM_MAJOR_VERSION=10
+      - -DFETCH_ROCMPATH_FROM_ROCMCORE=OFF
+      - -DRVS_BUILD_TESTS=OFF
+      - -DBUILD_TRANSFERBENCH_CLI=OFF
+      - '-DCMAKE_PREFIX_PATH="$ROCM_PATH;$ROCM_PATH/lib/rocm_sysdeps"'

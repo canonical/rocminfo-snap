@@ -20,7 +20,7 @@ concurrency:
 jobs:
   build:
     name: Build
-    runs-on: self-hosted-linux-amd64-noble-xlarge
+    runs-on: ubuntu-latest
     timeout-minutes: 600
     steps:
       - name: Checkout

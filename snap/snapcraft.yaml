@@ -38,11 +38,11 @@ apps:
       ROCM_PATH: $SNAP/opt/rocm
       HIP_PATH: $SNAP/opt/rocm
       HIP_DEVICE_LIB_PATH: $SNAP/opt/rocm/lib/llvm/amdgcn/bitcode
-      HSA_OVERRIDE_CPU_AFFINITY_DEBUG: "0"
     extensions: [gpu]
     plugs:
       - kernel-module-observe
       - opengl
+      - process-control
       - rocm
   rocm-agent-enumerator:
     command: opt/rocminfo/bin/rocm_agent_enumerator

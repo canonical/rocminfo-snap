@@ -70,6 +70,8 @@ test_data:
     wait-for-snap-changes
     _run sudo snap connect --no-wait rocminfo:kernel-module-observe
     wait-for-snap-changes
+    _run sudo snap connect --no-wait rocminfo:process-control
+    wait-for-snap-changes
 
     # Run ROCmInfo
     _run rocminfo
